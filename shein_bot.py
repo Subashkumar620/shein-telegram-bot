@@ -1,19 +1,50 @@
-import os, requests
+import requests, os, json
+from bs4 import BeautifulSoup
 
-print("BOT_TOKEN:", bool(os.environ.get("BOT_TOKEN")))
-print("CHAT_ID:", bool(os.environ.get("CHAT_ID")))
+BOT_TOKEN = os.environ["BOT_TOKEN"]
+CHAT_ID = os.environ["CHAT_ID"]
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
-CHAT_ID = os.environ.get("CHAT_ID")
+SEND_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
 
-if not BOT_TOKEN or not CHAT_ID:
-    print("❌ Secrets missing, message not sent")
-    exit(0)
+URL = "https://www.sheinindia.in/c/verse-5939"
 
-url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-requests.post(url, data={
-    "chat_id": CHAT_ID,
-    "text": "✅ FINAL CONFIRM: Message aa raha hai"
-})
+headers = {
+    "User-Agent": "Mozilla/5.0"
+}
 
-print("✅ Message sent")
+r = requests.get(URL, headers=headers)
+soup = BeautifulSoup(r.text, "html.parser")
+
+products = []
+
+for item in soup.select("a[href*='/p-']"):
+    link = "https://www.sheinindia.in" + item.get("href")
+
+    img = item.find("img")
+    if not img:
+        continue
+
+    photo = img.get("data-src") or img.get("src")
+    title = img.get("alt", "New SHEIN Product")
+
+    products.append({
+        "title": title,
+        "link": link,
+        "photo": photo
+    })
+
+try:
+    old = json.load(open("data.json"))
+except:
+    old = []
+
+new = [p for p in products if p["link"] not in [o["link"] for o in old]]
+
+for p in new[:3]:
+    requests.post(SEND_URL, data={
+        "chat_id": CHAT_ID,
+        "caption": f"🆕 {p['title']}\n🔗 {p['link']}",
+        "photo": p["photo"]
+    })
+
+json.dump(products, open("data.json", "w"))
