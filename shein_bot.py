@@ -7,6 +7,7 @@ CHAT_ID = os.environ.get("CHAT_ID")
 if not BOT_TOKEN or not CHAT_ID:
     print("Missing BOT_TOKEN or CHAT_ID")
     exit(0)
+    send("✅ Bot bilkul theek kaam kar raha hai")
 
 URL = "https://www.sheinindia.in/c/sverse-5939"
 
@@ -34,5 +35,3 @@ for x in new[:3]:
     send(f"🆕 New SHEIN Product\n{x}")
 
 json.dump(links, open("data.json", "w"))
-
-send("✅ Bot is working perfectly")
