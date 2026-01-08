@@ -3,7 +3,7 @@ name: SHEIN Monitor
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/5 * * * *"   # har 5 minute
+    - cron: "* * * * *"
 
 jobs:
   run:
