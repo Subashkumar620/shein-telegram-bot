@@ -21,9 +21,10 @@ def fetch():
             products.append((photo, link))
     return products[:5]
 
-old = []
-if os.path.exists("data.json"):
+try:
     old = json.load(open("data.json"))
+except:
+    old = []
 
 new = fetch()
 
