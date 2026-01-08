@@ -1,39 +1,36 @@
 import requests, json, os
 from bs4 import BeautifulSoup
-import telegram
 
-BOT_TOKEN = os.environ["BOT_TOKEN"]
-CHAT_ID = os.environ["CHAT_ID"]
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+CHAT_ID = os.environ.get("CHAT_ID")
+
+if not BOT_TOKEN or not CHAT_ID:
+    print("Missing BOT_TOKEN or CHAT_ID")
+    exit(0)
 
 URL = "https://www.sheinindia.in/c/sverse-5939"
-bot = telegram.Bot(token=BOT_TOKEN)
 
-def fetch():
-    r = requests.get(URL, headers={"User-Agent":"Mozilla/5.0"})
-    soup = BeautifulSoup(r.text, "html.parser")
-    products = []
+def send(msg):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    requests.post(url, data={"chat_id": CHAT_ID, "text": msg})
 
-    for a in soup.select("a[href*='/p-']"):
-        img = a.find("img")
-        if img and img.get("src"):
-            link = "https://www.sheinindia.in" + a["href"]
-            photo = img["src"]
-            products.append((photo, link))
-    return products[:5]
+r = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"})
+soup = BeautifulSoup(r.text, "html.parser")
+
+links = []
+for a in soup.select("a[href*='/p-']"):
+    link = "https://www.sheinindia.in" + a["href"]
+    if link not in links:
+        links.append(link)
 
 try:
     old = json.load(open("data.json"))
 except:
     old = []
 
-new = fetch()
+new = [x for x in links if x not in old]
 
-for p in new:
-    if p not in old:
-        bot.send_photo(
-            chat_id=CHAT_ID,
-            photo=p[0],
-            caption=f"🆕 New SHEIN Product\n{p[1]}"
-        )
+for x in new[:3]:
+    send(f"🆕 New SHEIN Product\n{x}")
 
-json.dump(new, open("data.json","w"))
+json.dump(links, open("data.json", "w"))
