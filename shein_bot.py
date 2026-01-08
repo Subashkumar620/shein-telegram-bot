@@ -34,3 +34,5 @@ for x in new[:3]:
     send(f"🆕 New SHEIN Product\n{x}")
 
 json.dump(links, open("data.json", "w"))
+
+send("✅ Bot is working perfectly")
