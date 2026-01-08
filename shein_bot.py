@@ -4,16 +4,18 @@ from bs4 import BeautifulSoup
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
 
-if not BOT_TOKEN or not CHAT_ID:
-    print("Missing BOT_TOKEN or CHAT_ID")
-    exit(0)
-    send("✅ Bot bilkul theek kaam kar raha hai")
-
-URL = "https://www.sheinindia.in/c/sverse-5939"
-
 def send(msg):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     requests.post(url, data={"chat_id": CHAT_ID, "text": msg})
+
+if not BOT_TOKEN or not CHAT_ID:
+    print("Missing BOT_TOKEN or CHAT_ID")
+    exit(0)
+
+# ✅ TEST MESSAGE (pehle hi bhej do)
+send("✅ Bot bilkul theek kaam kar raha hai")
+
+URL = "https://www.sheinindia.in/c/sverse-5939"
 
 r = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"})
 soup = BeautifulSoup(r.text, "html.parser")
